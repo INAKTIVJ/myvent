@@ -150,3 +150,41 @@ h2 {
   
 }
 
+.announcement-box {
+  background: linear-gradient(135deg, rgba(255,182,193,0.2), rgba(140,130,255,0.2));
+  border-radius: 16px;
+  padding: 20px;
+  margin: 30px 0;
+  box-shadow: 0 0 20px rgba(255,182,193,0.3), 0 0 30px rgba(140,130,255,0.2);
+  backdrop-filter: blur(6px);
+  color: #fff;
+}
+
+.announcement {
+  background: rgba(255, 255, 255, 0.05);
+  margin: 10px 0;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(255,182,193,0.3);
+  position: relative;
+}
+
+.like-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: linear-gradient(45deg, #ffb6c1, #8c82ff);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.2s ease;
+}
+
+.like-btn:hover {
+  transform: scale(1.1);
+}
+
+
