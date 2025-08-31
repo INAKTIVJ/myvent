@@ -55,9 +55,9 @@ const db = getFirestore(app);
 
 const announcementsDiv = document.getElementById("announcements");
 
-// Echtzeit-Updates
 const announcementsCol = collection(db, "announcements");
 
+// Echtzeit-Updates aus Firestore
 onSnapshot(announcementsCol, (snapshot) => {
   announcementsDiv.innerHTML = ""; // Box leeren
 
@@ -65,35 +65,34 @@ onSnapshot(announcementsCol, (snapshot) => {
     const data = docSnap.data();
     const id = docSnap.id;
 
+    // Stelle sicher, dass likes definiert ist
+    const likes = data.likes || 0;
+
     const ann = document.createElement("div");
     ann.className = "announcement";
     ann.innerHTML = `
       <p>${data.text}</p>
-      <button class="like-btn" data-id="${id}">❤️ <span class="like-count">${data.likes}</span></button>
+      <button class="like-btn" data-id="${id}">❤️ <span class="like-count">${likes}</span></button>
     `;
     announcementsDiv.appendChild(ann);
 
-    // Like-Button direkt hier binden, mit aktuellem Datenwert
+    // Like-Button Event
     const likeBtn = ann.querySelector(".like-btn");
     const likeCountSpan = likeBtn.querySelector(".like-count");
 
     likeBtn.addEventListener("click", async () => {
       const docRef = doc(db, "announcements", id);
+
+      // Nimm den aktuellen Wert aus dem Button selbst
       const currentLikes = parseInt(likeCountSpan.textContent);
-      await updateDoc(docRef, { likes: currentLikes + 1 });
+      const newLikes = currentLikes + 1;
+
+      // Firestore aktualisieren
+      await updateDoc(docRef, { likes: newLikes });
     });
   });
 });
 
-
-  // Like-Buttons aktivieren
-  document.querySelectorAll(".like-btn").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      const id = btn.dataset.id;
-      const docRef = doc(db, "announcements", id);
-      await updateDoc(docRef, { likes: data.likes + 1 });
-    });
-  });
 
 // Alle Like-Buttons auswählen
 document.querySelectorAll(".like-btn").forEach(btn => {
