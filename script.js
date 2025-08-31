@@ -38,7 +38,7 @@ console.log("MyVent site loaded.");
 
 // Firebase SDK importieren
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, collection, getDocs, updateDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getFirestore, collection, doc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 // Firebase config
 const firebaseConfig = {
@@ -55,10 +55,12 @@ const db = getFirestore(app);
 
 const announcementsDiv = document.getElementById("announcements");
 
-// Echtzeit Updates
+// Echtzeit-Updates
 const announcementsCol = collection(db, "announcements");
+
 onSnapshot(announcementsCol, (snapshot) => {
   announcementsDiv.innerHTML = ""; // Box leeren
+
   snapshot.forEach(docSnap => {
     const data = docSnap.data();
     const id = docSnap.id;
@@ -67,10 +69,22 @@ onSnapshot(announcementsCol, (snapshot) => {
     ann.className = "announcement";
     ann.innerHTML = `
       <p>${data.text}</p>
-      <button class="like-btn" data-id="${id}">❤️ ${data.likes}</button>
+      <button class="like-btn" data-id="${id}">❤️ <span class="like-count">${data.likes}</span></button>
     `;
     announcementsDiv.appendChild(ann);
+
+    // Like-Button direkt hier binden, mit aktuellem Datenwert
+    const likeBtn = ann.querySelector(".like-btn");
+    const likeCountSpan = likeBtn.querySelector(".like-count");
+
+    likeBtn.addEventListener("click", async () => {
+      const docRef = doc(db, "announcements", id);
+      const currentLikes = parseInt(likeCountSpan.textContent);
+      await updateDoc(docRef, { likes: currentLikes + 1 });
+    });
   });
+});
+
 
   // Like-Buttons aktivieren
   document.querySelectorAll(".like-btn").forEach(btn => {
@@ -79,5 +93,26 @@ onSnapshot(announcementsCol, (snapshot) => {
       const docRef = doc(db, "announcements", id);
       await updateDoc(docRef, { likes: data.likes + 1 });
     });
+  });
+
+// Alle Like-Buttons auswählen
+document.querySelectorAll(".like-btn").forEach(btn => {
+  const countSpan = btn.querySelector(".like-count");
+
+  // lokalen Speicher prüfen
+  const storedLikes = localStorage.getItem(btn.dataset.id);
+  if (storedLikes) countSpan.textContent = storedLikes;
+
+  btn.addEventListener("click", () => {
+    let count = parseInt(countSpan.textContent);
+    count++;
+    countSpan.textContent = count;
+
+    // in localStorage speichern
+    localStorage.setItem(btn.dataset.id, count);
+
+    // kleine Pop-Animation
+    btn.style.transform = "scale(1.3)";
+    setTimeout(() => { btn.style.transform = "scale(1)"; }, 150);
   });
 });
